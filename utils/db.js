@@ -1,23 +1,37 @@
-import mongoose from "mongoose";
+import mongodb from 'mongodb';
+
 class DBClient {
   constructor() {
-    this.client = mongoose.connect({
-      host: process.env.DB_HOST || "localhost",
-      port: process.env.DB_PORT || 27017,
-      database: process.env.DB_DATABASE || "file_manager",
-    });
+    const uri = `mongodb://${process.env.DB_HOST || 'localhost'}:${
+      process.env.DB_PORT || 27017
+    }`;
+    const dbName = process.env.DB_DATABASE || 'file_manager';
+
+    this.client = new mongodb.MongoClient(uri, { useUnifiedTopology: true });
+
+    this.database = null;
+    this.client
+      .connect()
+      .then((client) => {
+        this.database = client.db(dbName);
+      })
+      .catch((err) => {
+        console.log('Failed to connect to MongoDB ', err.message);
+      });
   }
 
   isAlive() {
-    return this.client.readyState === 1;
+    return this.client.isConnected();
   }
 
   async nbUsers() {
-    return this.client.users.count();
+    const usersCollection = this.database.collection('users');
+    return usersCollection.countDocuments();
   }
 
   async nbFiles() {
-    return this.client.files.count();
+    const filesCollection = this.database.collection('files');
+    return filesCollection.countDocuments();
   }
 }
 
