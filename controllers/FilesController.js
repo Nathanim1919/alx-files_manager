@@ -9,9 +9,9 @@ const FOLDER_PATH = process.env.FOLDER_PATH || '/tmp/files_manager';
 class FilesController {
   static async postUpload(req, res) {
     const authorization = req.header('X-Token');
-
     if (!authorization) return res.status(401).json({ error: 'Unauthorized' });
-    const base64Credentials = authorization.split(' ')[1];
+    const base64Credentials = authorization.split(' ')[0];
+    console.log(base64Credentials);
     if (!base64Credentials) return res.status(401).json({ error: 'Unauthorized' });
     const userId = await redisClient.get(`auth_${base64Credentials}`);
     if (!userId) return res.status(401).json({ error: 'Unauthorized' });
