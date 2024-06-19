@@ -13,7 +13,7 @@ class UserController {
       .collection('users')
       .insertOne({ email, password: hashedPassword });
 
-    return res.status(201).json({id: newUser.ops[0]._id, email});
+    return res.status(201).json({ id: newUser.ops[0]._id, email });
   }
 }
 
