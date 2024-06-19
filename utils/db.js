@@ -13,9 +13,9 @@ class DBClient {
       { useUnifiedTopology: true },
       (error, client) => {
         if (error) console.log(error);
-        this.database = client.db(database);
-        this.database.createCollection('users');
-        this.database.createCollection('files');
+        this.db = client.db(database);
+        this.db.createCollection('users');
+        this.db.createCollection('files');
       },
     );
   }
