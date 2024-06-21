@@ -89,7 +89,7 @@ class FilesController {
   static async getShow(req, res) {
     const authorization = req.header('X-Token');
     if (!authorization) return res.status(401).json({ error: 'Unauthorized' });
-    const token = authorization.split(' ')[1];
+    const token = authorization.split(' ')[0];
     if (!token) return res.status(401).json({ error: 'Unauthorized' });
     const userId = await redisClient.get(`auth_${token}`);
     if (!userId) return res.status(401).json({ error: 'Unauthorized' });
@@ -100,15 +100,16 @@ class FilesController {
     const file = await dbClient.db
       .collection('files')
       .findOne({ _id: req.param.id, userId: user._id });
-    if (!file) return res.status(404).json({ error: 'Not found' });
-    return file;
-  }
-
-  static async getIndex(req, res) {
-    // retrive the token from the header
-    const authorization = req.header('X-Token');
-    if (!authorization) return res.status(401).json({ error: 'Unauthorized' });
-    const token = authorization.split(' ')[1];
+      if (!file) return res.status(404).json({ error: 'Not found' });
+      return file;
+      }
+      
+      static async getIndex(req, res) {
+        // retrive the token from the header
+        const authorization = req.header('X-Token');
+        if (!authorization) return res.status(401).json({ error: 'Unauthorized' });
+        const token = authorization.split(' ')[0];
+        console.log("authorization is :",token);
     if (!token) return res.status(401).json({ error: 'Unauthorized' });
     const userId = await redisClient.get(`auth_${token}`);
     if (!userId) return res.status(401).json({ error: 'Unauthorized' });
