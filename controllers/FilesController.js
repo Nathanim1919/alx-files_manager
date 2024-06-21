@@ -9,7 +9,7 @@ const FOLDER_PATH = process.env.FOLDER_PATH || '/tmp/files_manager';
 
 class FilesController {
   static async postUpload(req, res) {
-    const authorization = req.header('X-Token');
+    const authorization = req.header['x-token'];
     if (!authorization) return res.status(401).json({ error: 'Unauthorized' });
     const base64Credentials = authorization.split(' ')[0];
     console.log(base64Credentials);
@@ -90,7 +90,7 @@ class FilesController {
   }
 
   static async getShow(req, res) {
-    const authorization = req.header('X-Token');
+    const authorization = req.header['x-token'];
     if (!authorization) return res.status(401).json({ error: 'Unauthorized' });
     const token = authorization.split(' ')[0];
     if (!token) return res.status(401).json({ error: 'Unauthorized' });
@@ -116,7 +116,7 @@ class FilesController {
 
   static async getIndex(req, res) {
     // retrive the token from the header
-    const authorization = req.header('X-Token');
+    const authorization = req.header['x-token'];
     if (!authorization) return res.status(401).json({ error: 'Unauthorized' });
     const token = authorization.split(' ')[0];
     console.log('authorization is :', token);
@@ -142,7 +142,7 @@ class FilesController {
   }
 
   static async putPublish(req, res) {
-    const authorization = req.header('X-Token');
+    const authorization = req.header['x-token'];
     if (!authorization) return res.status(401).json({ error: 'Unauthorized' });
     const token = authorization.split(' ')[0];
     if (!token) return res.status(401).json({ error: 'Unauthorized' });
@@ -170,7 +170,7 @@ class FilesController {
   }
 
   static async putUnpublish(req, res) {
-    const authorization = req.header('X-Token');
+    const authorization = req.header['x-token'];
     if (!authorization) return res.status(401).json({ error: 'Unauthorized' });
     const token = authorization.split(' ')[0];
     if (!token) return res.status(401).json({ error: 'Unauthorized' });
@@ -198,7 +198,7 @@ class FilesController {
   }
 
   static async getFile(req, res) {
-    const authorization = req.header('X-Token');
+    const authorization = req.header['x-token'];
     if (!authorization) return res.status(401).json({ error: 'Unauthorized' });
     const token = authorization.split(' ')[0];
     if (!token) return res.status(401).json({ error: 'Unauthorized' });
