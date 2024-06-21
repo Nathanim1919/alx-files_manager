@@ -11,12 +11,9 @@ const FOLDER_PATH = process.env.FOLDER_PATH || '/tmp/files_manager';
 class FilesController {
   static async postUpload(req, res) {
     const fileQueue = new Queue('fileQueue');
-    const authorization = req.header['x-token'];
-    if (!authorization) return res.status(401).json({ error: 'Unauthorized' });
-    const base64Credentials = authorization.split(' ')[0];
-    console.log(base64Credentials);
-    if (!base64Credentials) return res.status(401).json({ error: 'Unauthorized' });
-    const userId = await redisClient.get(`auth_${base64Credentials}`);
+    const token = req.header('X-Token');
+    if (!token) return res.status(401).json({ error: 'Unauthorized' });
+    const userId = await redisClient.get(`auth_${token}`);
     if (!userId) return res.status(401).json({ error: 'Unauthorized' });
     const user = await dbClient.db
       .collection('users')
@@ -98,9 +95,7 @@ class FilesController {
   }
 
   static async getShow(req, res) {
-    const authorization = req.header['x-token'];
-    if (!authorization) return res.status(401).json({ error: 'Unauthorized' });
-    const token = authorization.split(' ')[0];
+    const token = req.header('X-Token');
     if (!token) return res.status(401).json({ error: 'Unauthorized' });
     const userId = await redisClient.get(`auth_${token}`);
     if (!userId) return res.status(401).json({ error: 'Unauthorized' });
@@ -124,10 +119,7 @@ class FilesController {
 
   static async getIndex(req, res) {
     // retrive the token from the header
-    const authorization = req.header['x-token'];
-    if (!authorization) return res.status(401).json({ error: 'Unauthorized' });
-    const token = authorization.split(' ')[0];
-    console.log('authorization is :', token);
+    const token = req.header('X-Token');
     if (!token) return res.status(401).json({ error: 'Unauthorized' });
     const userId = await redisClient.get(`auth_${token}`);
     if (!userId) return res.status(401).json({ error: 'Unauthorized' });
@@ -150,9 +142,7 @@ class FilesController {
   }
 
   static async putPublish(req, res) {
-    const authorization = req.header['x-token'];
-    if (!authorization) return res.status(401).json({ error: 'Unauthorized' });
-    const token = authorization.split(' ')[0];
+    const token = req.header('X-Token');
     if (!token) return res.status(401).json({ error: 'Unauthorized' });
     const userId = await redisClient.get(`auth_${token}`);
     if (!userId) return res.status(401).json({ error: 'Unauthorized' });
@@ -178,9 +168,7 @@ class FilesController {
   }
 
   static async putUnpublish(req, res) {
-    const authorization = req.header['x-token'];
-    if (!authorization) return res.status(401).json({ error: 'Unauthorized' });
-    const token = authorization.split(' ')[0];
+    const token = req.header('X-Token');
     if (!token) return res.status(401).json({ error: 'Unauthorized' });
     const userId = await redisClient.get(`auth_${token}`);
     if (!userId) return res.status(401).json({ error: 'Unauthorized' });
