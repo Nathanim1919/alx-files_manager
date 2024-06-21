@@ -1,5 +1,5 @@
 import { ObjectId } from 'mongodb';
-import { promises as fsPromises } from 'fs';
+import { mkdir, writeFile } from 'fs';
 import { v4 as uuid } from 'uuid';
 import mime from 'mime-types';
 import dbClient from '../utils/db';
@@ -57,14 +57,17 @@ class FilesController {
     }
 
     const buff = Buffer.from(data, 'base64');
-    await fsPromises.mkdir(FOLDER_PATH, { recursive: true });
-
     const localPath = `${FOLDER_PATH}/${uuid()}`;
-    try {
-      await fsPromises.writeFile(localPath, buff);
-    } catch (err) {
-      return res.status(500).json({ error: err.message });
-    }
+
+    mkdir(FOLDER_PATH, { recursive: true }, (error) => {
+      if (error) return res.status(400).send({ error: error.message });
+      return true;
+    });
+
+    writeFile(localPath, buff, (error) => {
+      if (error) return res.status(400).send({ error: error.message });
+      return true;
+    });
 
     const doc = await dbClient.db.collection('files').insertOne({
       name,
@@ -99,17 +102,24 @@ class FilesController {
     if (!user) return res.status(401).json({ error: 'Unauthorized' });
     const file = await dbClient.db
       .collection('files')
-      .findOne({ _id: req.param.id, userId: user._id });
-      if (!file) return res.status(404).json({ error: 'Not found' });
-      return file;
-      }
-      
-      static async getIndex(req, res) {
-        // retrive the token from the header
-        const authorization = req.header('X-Token');
-        if (!authorization) return res.status(401).json({ error: 'Unauthorized' });
-        const token = authorization.split(' ')[0];
-        console.log("authorization is :",token);
+      .findOne({ _id: ObjectId(req.param.id), userId: user._id });
+    if (!file) return res.status(404).json({ error: 'Not found' });
+    return res.status(200).send({
+      id: file._id,
+      userId: file.userId,
+      name: file.name,
+      type: file.type,
+      isPublic: file.isPublic,
+      parentId: file.parentId,
+    });
+  }
+
+  static async getIndex(req, res) {
+    // retrive the token from the header
+    const authorization = req.header('X-Token');
+    if (!authorization) return res.status(401).json({ error: 'Unauthorized' });
+    const token = authorization.split(' ')[0];
+    console.log('authorization is :', token);
     if (!token) return res.status(401).json({ error: 'Unauthorized' });
     const userId = await redisClient.get(`auth_${token}`);
     if (!userId) return res.status(401).json({ error: 'Unauthorized' });
@@ -149,9 +159,14 @@ class FilesController {
     await dbClient.db
       .collection('files')
       .updateOne({ _id: req.param.id }, { $set: { isPublic: true } });
-    return res
-      .status(200)
-      .json({ id: file._id, name: file.name, isPublic: true });
+    return res.status(200).send({
+      id: file._id,
+      userId: file.userId,
+      name: file.name,
+      type: file.type,
+      isPublic: file.isPublic,
+      parentId: file.parentId,
+    });
   }
 
   static async putUnpublish(req, res) {
@@ -172,9 +187,14 @@ class FilesController {
     await dbClient.db
       .collection('files')
       .updateOne({ _id: req.param.id }, { $set: { isPublic: false } });
-    return res
-      .status(200)
-      .json({ id: file._id, name: file.name, isPublic: false });
+    return res.status(200).send({
+      id: file._id,
+      userId: file.userId,
+      name: file.name,
+      type: file.type,
+      isPublic: file.isPublic,
+      parentId: file.parentId,
+    });
   }
 
   static async getFile(req, res) {
